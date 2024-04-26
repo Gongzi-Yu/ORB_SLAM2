@@ -74,8 +74,7 @@ const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD = 19;
 
 
-static float IC_Angle(const Mat& image, Point2f pt,  const vector<int> & u_max)
-{
+static float IC_Angle(const Mat& image, Point2f pt,  const vector<int> & u_max) {
     int m_01 = 0, m_10 = 0;
 
     const uchar* center = &image.at<uchar> (cvRound(pt.y), cvRound(pt.x));
@@ -407,6 +406,41 @@ static int bit_pattern_31_[256*4] =
     -1,-6, 0,-11/*mean (0.127148), correlation (0.547401)*/
 };
 
+/**
+ * @brief 获取自适应阈值
+ * @param[in] image     要进行操作的某层金字塔图像
+ * @param[in] pt        当前特征点的坐标
+ * @param[in] u_max     图像块的每一行的坐标边界 u_max
+ * @return ThFAST 自定义阈值
+ */
+int autoThFAST(const Mat& image, Point2f pt,  const vector<int> & u_max) {
+	// 获得这个特征点所在图像块的中心点坐标灰度值的指针center
+    const uchar* grayscale = &image.at<uchar> (cvRound(pt.y), cvRound(pt.x));
+    int ThFAST = 0; // 自定义阈值
+    int _grayscale, grayscale_sum = 0; // 灰度均值，灰度值之和
+    int pix_sum = 0; // 总像素个数
+    int step = (int)image.step1(), i;
+    // 求解灰度均值
+    for(i = -HALF_PATCH_SIZE; i <= HALF_PATCH_SIZE; i++) {
+        int d = u_max[i];
+        for (int u = -d; u <= d; ++u) {
+            grayscale_sum += grayscale[i];
+            pix_sum++;
+        }
+    }
+    _grayscale = grayscale_sum/pix_sum;
+    // 求解阈值
+    for(i = -HALF_PATCH_SIZE; i <= HALF_PATCH_SIZE; i++) {
+        int d = u_max[i];
+        for (int u = -d; u <= d; ++u) {
+            ThFAST += pow(grayscale[i] - _grayscale, 2);
+        }
+    }
+    ThFAST = ThFAST/pix_sum/_grayscale;
+    return ThFAST;
+    // 学长，我不知道这个函数该怎么赋值给iniThFAST？
+}
+
 ORBextractor::ORBextractor(int _nfeatures, float _scaleFactor, int _nlevels,
          int _iniThFAST, int _minThFAST):
     nfeatures(_nfeatures), scaleFactor(_scaleFactor), nlevels(_nlevels),
@@ -539,7 +573,7 @@ void ExtractorNode::DivideNode(ExtractorNode &n1, ExtractorNode &n2, ExtractorNo
 vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>& vToDistributeKeys, const int &minX,
                                        const int &maxX, const int &minY, const int &maxY, const int &N, const int &level)
 {
-    // Compute how many initial nodes   
+    // Compute how many initial nodes
     const int nIni = round(static_cast<float>(maxX-minX)/(maxY-minY));
 
     const float hX = static_cast<float>(maxX-minX)/nIni;
@@ -620,7 +654,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
                 // Add childs if they contain points
                 if(n1.vKeys.size()>0)
                 {
-                    lNodes.push_front(n1);                    
+                    lNodes.push_front(n1);
                     if(n1.vKeys.size()>1)
                     {
                         nToExpand++;
@@ -662,7 +696,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint>&
                 lit=lNodes.erase(lit);
                 continue;
             }
-        }       
+        }
 
         // Finish if there are more nodes than required features
         // or all nodes contain just one point
@@ -1042,7 +1076,7 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
 
 void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPoint>& _keypoints,
                       OutputArray _descriptors)
-{ 
+{
     if(_image.empty())
         return;
 
@@ -1120,12 +1154,12 @@ void ORBextractor::ComputePyramid(cv::Mat image)
             resize(mvImagePyramid[level-1], mvImagePyramid[level], sz, 0, 0, INTER_LINEAR);
 
             copyMakeBorder(mvImagePyramid[level], temp, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
-                           BORDER_REFLECT_101+BORDER_ISOLATED);            
+                           BORDER_REFLECT_101+BORDER_ISOLATED);
         }
         else
         {
             copyMakeBorder(image, temp, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
-                           BORDER_REFLECT_101);            
+                           BORDER_REFLECT_101);
         }
     }
 
