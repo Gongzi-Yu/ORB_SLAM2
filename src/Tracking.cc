@@ -21,8 +21,8 @@
 
 #include "Tracking.h"
 
-#include<opencv2/core/core.hpp>
-#include<opencv2/features2d/features2d.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 #include"ORBmatcher.h"
 #include"FrameDrawer.h"
@@ -30,13 +30,7 @@
 #include"Map.h"
 #include"Initializer.h"
 
-#include"Optimizer.h"
-#include"PnPsolver.h"
-
-#include<iostream>
-
-#include<mutex>
-
+#include <unistd.h>
 
 using namespace std;
 
@@ -82,7 +76,7 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     if(fps==0)
         fps=30;
 
-    // Max/Min Frames to insert keyframes and to check relocalisation
+    // Max/Min Frames to insert keyframes and to check relocalization
     mMinFrames = 0;
     mMaxFrames = fps;
 
@@ -145,7 +139,10 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
         else
             mDepthMapFactor = 1.0f/mDepthMapFactor;
     }
-
+    if (bReuseMap)
+    {
+        mState = LOST;
+    }
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -916,7 +913,7 @@ bool Tracking::TrackWithMotionModel()
             else if(mCurrentFrame.mvpMapPoints[i]->Observations()>0)
                 nmatchesMap++;
         }
-    }    
+    }
 
     if(mbOnlyTracking)
     {

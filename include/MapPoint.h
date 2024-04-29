@@ -21,12 +21,13 @@
 #ifndef MAPPOINT_H
 #define MAPPOINT_H
 
-#include"KeyFrame.h"
-#include"Frame.h"
-#include"Map.h"
+#include "KeyFrame.h"
+#include "Frame.h"
+#include "Map.h"
+#include "Serialize.h"
 
-#include<opencv2/core/core.hpp>
-#include<mutex>
+#include <opencv2/core/core.hpp>
+#include <mutex>
 
 namespace ORB_SLAM2
 {
@@ -60,7 +61,7 @@ public:
     void SetBadFlag();
     bool isBad();
 
-    void Replace(MapPoint* pMP);    
+    void Replace(MapPoint* pMP);
     MapPoint* GetReplaced();
 
     void IncreaseVisible(int n=1);
@@ -105,46 +106,46 @@ public:
     // Variables used by loop closing
     long unsigned int mnLoopPointForKF;
     long unsigned int mnCorrectedByKF;
-    long unsigned int mnCorrectedReference;    
+    long unsigned int mnCorrectedReference;
     cv::Mat mPosGBA;
     long unsigned int mnBAGlobalForKF;
 
 
     static std::mutex mGlobalMutex;
 
-protected:    
+protected:
 
-     // Position in absolute coordinates
-     cv::Mat mWorldPos;
+    // Position in absolute coordinates
+    cv::Mat mWorldPos;
 
-     // Keyframes observing the point and associated index in keyframe
-     std::map<KeyFrame*,size_t> mObservations;
+    // Keyframes observing the point and associated index in keyframe
+    std::map<KeyFrame*,size_t> mObservations;
 
-     // Mean viewing direction
-     cv::Mat mNormalVector;
+    // Mean viewing direction
+    cv::Mat mNormalVector;
 
-     // Best descriptor to fast matching
-     cv::Mat mDescriptor;
+    // Best descriptor to fast matching
+    cv::Mat mDescriptor;
 
-     // Reference KeyFrame
-     KeyFrame* mpRefKF;
+    // Reference KeyFrame
+    KeyFrame* mpRefKF;
 
-     // Tracking counters
-     int mnVisible;
-     int mnFound;
+    // Tracking counters
+    int mnVisible;
+    int mnFound;
 
-     // Bad flag (we do not currently erase MapPoint from memory)
-     bool mbBad;
-     MapPoint* mpReplaced;
+    // Bad flag (we do not currently erase MapPoint from memory)
+    bool mbBad;
+    MapPoint* mpReplaced;
 
-     // Scale invariance distances
-     float mfMinDistance;
-     float mfMaxDistance;
+    // Scale invariance distances
+    float mfMinDistance;
+    float mfMaxDistance;
 
-     Map* mpMap;
+    Map* mpMap;
 
-     std::mutex mMutexPos;
-     std::mutex mMutexFeatures;
+    std::mutex mMutexPos;
+    std::mutex mMutexFeatures;
 };
 
 } //namespace ORB_SLAM

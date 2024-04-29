@@ -31,7 +31,6 @@
 
 #include <mutex>
 
-
 namespace ORB_SLAM2
 {
 
@@ -222,7 +221,7 @@ protected:
     // Bad flags
     bool mbNotErase;
     bool mbToBeErased;
-    bool mbBad;    
+    bool mbBad;
 
     float mHalfBaseline; // Only for visualization
 

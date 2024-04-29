@@ -438,7 +438,6 @@ int autoThFAST(const Mat& image, Point2f pt,  const vector<int> & u_max) {
     }
     ThFAST = ThFAST/pix_sum/_grayscale;
     return ThFAST;
-    // 学长，我不知道这个函数该怎么赋值给iniThFAST？
 }
 
 ORBextractor::ORBextractor(int _nfeatures, float _scaleFactor, int _nlevels,

@@ -28,9 +28,9 @@
 
 #include "ORBmatcher.h"
 
-#include<mutex>
-#include<thread>
-
+#include <mutex>
+#include <thread>
+#include <unistd.h>
 
 namespace ORB_SLAM2
 {
@@ -74,7 +74,7 @@ void LoopClosing::Run()
                    CorrectLoop();
                }
             }
-        }       
+        }
 
         ResetIfRequested();
 
@@ -579,9 +579,8 @@ void LoopClosing::CorrectLoop()
     mpThreadGBA = new thread(&LoopClosing::RunGlobalBundleAdjustment,this,mpCurrentKF->mnId);
 
     // Loop closed. Release Local Mapping.
-    mpLocalMapper->Release();    
-
-    mLastLoopKFid = mpCurrentKF->mnId;   
+    mpLocalMapper->Release();
+    mLastLoopKFid = mpCurrentKF->mnId;
 }
 
 void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
@@ -734,7 +733,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
                     pMP->SetWorldPos(Rwc*Xc+twc);
                 }
-            }            
+            }
 
             mpMap->InformNewBigChange();
 
